@@ -1,8 +1,7 @@
 import { Component, OnInit, ViewChild, ViewContainerRef, Injector, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { Subscription } from "rxjs/Subscription";
-
 import { ModalService } from './../modal.service';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
     selector: 'modal-placeholder',
@@ -20,20 +19,32 @@ import { ModalService } from './../modal.service';
 })
 export class ModalPlaceholderComponent implements OnInit, OnDestroy {
 
-    private subscription: Subscription;
+    private contentSubscription: Subscription;
+    private allowBackdropCloseSubscription: Subscription;
     public modalActive: boolean = false;
+    public allowBackdropClose: boolean = true;
     public modalState: string = 'inactive';
 
-    @ViewChild("modalplaceholder", { read: ViewContainerRef }) viewContainerRef: ViewContainerRef;
+    @ViewChild('modalplaceholder', { read: ViewContainerRef }) viewContainerRef: ViewContainerRef;
 
     constructor(
         private modalService: ModalService,
         private injector: Injector
     ) {}
 
-    public onOverlayClick(): void {
+    private closeModal(): void {
         this.modalService.clear();
-    }  
+    }
+
+    public onOverlayClick(): void {
+        if (this.allowBackdropClose) {
+            this.closeModal();
+        }
+    }
+
+    public onClose(event: Event): void {
+        this.closeModal();
+    }
 
     public onContentClick(event: Event): void {
         event.stopPropagation();
@@ -43,7 +54,7 @@ export class ModalPlaceholderComponent implements OnInit, OnDestroy {
 
         this.modalService.registerViewContainerRef(this.viewContainerRef);
 
-        this.subscription = this.modalService.activeInstances$.subscribe(
+        this.contentSubscription = this.modalService.activeInstances$.subscribe(
             (instances: number) => {
                 this.modalActive = instances > 0;
                 if (this.modalActive) {
@@ -56,10 +67,17 @@ export class ModalPlaceholderComponent implements OnInit, OnDestroy {
             }
         );
 
+        this.allowBackdropCloseSubscription = this.modalService.allowBackdropClose$.subscribe(
+            (allowBackdropClose: boolean) => {
+                this.allowBackdropClose = allowBackdropClose;
+            }
+        );
+
     }
 
     public ngOnDestroy(): void {
-        this.subscription.unsubscribe();
+        this.contentSubscription.unsubscribe();
+        this.allowBackdropCloseSubscription.unsubscribe();
     }
 
 }

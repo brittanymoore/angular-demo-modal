@@ -1,5 +1,6 @@
-<div [@toggleState]="modalState" id="modal-overlay" [ngClass]="{'overlayActive': modalActive}" (click)="onOverlayClick()">
+<div [@toggleState]="modalState" id="modal-overlay" [ngClass]="{'overlay-active': modalActive}" (click)="onOverlayClick()">
     <div id="modal-content" (click)="onContentClick($event)">
+        <div id="modal-close" (click)="onClose($event)">X</div>
         <ng-container #modalplaceholder></ng-container>
     </div>
 </div>

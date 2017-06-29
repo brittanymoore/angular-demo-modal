@@ -1,34 +1,36 @@
-import { 
-    Injectable, ViewContainerRef, Injector, Compiler, 
-    ReflectiveInjector, ComponentRef, ComponentFactory, 
-    ComponentFactoryResolver, Type 
+import {
+    Injectable, ViewContainerRef, Injector, Compiler,
+    ReflectiveInjector, ComponentRef, ComponentFactory,
+    ComponentFactoryResolver, Type
 } from '@angular/core';
-import { Observable } from "rxjs/Observable";
-import { ReplaySubject } from "rxjs/ReplaySubject";
-import { Subject } from "rxjs/Subject";
+import { Observable } from 'rxjs/Observable';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class ModalService {
 
     private vcRef: ViewContainerRef;
+    private injector: Injector;
     private modalRef: ComponentRef<any>[] = [];
     private activeInstances: number = 0;
 
     public activeInstances$: Subject<number> = new Subject();
+    public allowBackdropClose$: Subject<boolean> = new Subject();
 
     constructor(
-        private compiler: Compiler, 
-        private _resolver: ComponentFactoryResolver
+        private resolver: ComponentFactoryResolver
     ) { }
 
     public registerViewContainerRef(vcRef: ViewContainerRef): void {
         if (this.vcRef) {
-            // multiples doesn't break it, since the service will only keep the first view 
+            // multiples doesn't break it, since the service will only keep the first view
             // container it sees. But with the overlay it will look weird.
-            console.warn(`Warning: Multiple instances of modal-placeholder detected. 
-                This can cause unexpected behavior.`);
+            console.warn(`Warning: Multiple instances of modal-placeholder detected. ` +
+                `This can cause unexpected behavior.`);
         } else {
             this.vcRef = vcRef;
+            this.injector = ReflectiveInjector.fromResolvedProviders([], this.vcRef.parentInjector);
         }
     }
 
@@ -36,26 +38,36 @@ export class ModalService {
         this.vcRef.clear();
     }
 
-    public create<T>(component: Type<{}>, parameters?: Object): Observable<ComponentRef<T>> {
+    public create<T>(component: Type<{}>, parameters: Object, allowBackdropClose?: boolean):
+    Observable<ComponentRef<T>> {
 
-        let componentRef$ = new ReplaySubject();
+        if (allowBackdropClose === undefined || allowBackdropClose === null) {
+            allowBackdropClose = true;
+        }
+
+        // broadcast new allow backdrop close value
+        this.allowBackdropClose$.next(allowBackdropClose);
+
+        // empty the container
+        this.clear();
+
+        const componentRef$ = new ReplaySubject();
 
         // generate an instance of the provided component.
-        const injector = ReflectiveInjector.fromResolvedProviders([], this.vcRef.parentInjector);    
-        const factory = this._resolver.resolveComponentFactory(component);
-        const componentRef: any = factory.create(injector);
+        const factory = this.resolver.resolveComponentFactory(component);
+        const componentRef: any = factory.create(this.injector);
 
         // insert the component into the view container and pass in parameters
         this.vcRef.insert(componentRef.hostView);
         Object.assign(componentRef.instance, parameters);
 
         // increment and broadcast active instances
-        this.activeInstances++; 
+        this.activeInstances++;
         this.activeInstances$.next(this.activeInstances);
 
         // set component index and onDestroy function to work with active instances.
         componentRef.instance['componentIndex'] = this.activeInstances;
-        componentRef.onDestroy(() => { 
+        componentRef.onDestroy(() => {
             this.activeInstances--;
             this.activeInstances = Math.max(this.activeInstances, 0);
             this.activeInstances$.next(this.activeInstances);
