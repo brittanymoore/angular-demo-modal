@@ -14,7 +14,7 @@ import 'core-js/es6/map';
 import 'core-js/es6/set';
 
 // internet explorer @angular/animations
-//import web-animations-js // also requires the web-animations-js dependency
+// import web-animations-js // also requires the web-animations-js dependency
 
 // required
 import 'core-js/es6/reflect';

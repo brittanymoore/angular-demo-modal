@@ -3,11 +3,11 @@ import { Component } from '@angular/core';
 import { ModalService } from './../modal.service';
 
 @Component({
-    selector: 'modal-content',
+    selector: 'app-modal-content-1',
     templateUrl: './modal-content.component.html',
     styleUrls: ['./modal-content.component.less']
 })
-export class ModalContentComponent1 {
+export class ModalContent1Component {
 
     constructor(private modalService: ModalService) { }
 

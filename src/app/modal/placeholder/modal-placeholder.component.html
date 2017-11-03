@@ -1,6 +1,6 @@
 <div [@toggleState]="modalState" id="modal-overlay" [ngClass]="{'overlay-active': modalActive}" (click)="onOverlayClick()">
-    <div id="modal-content" (click)="onContentClick($event)">
-        <div id="modal-close" (click)="onClose($event)">X</div>
+    <div [@slideState]="modalState" id="modal-content" (click)="onContentClick($event)">
+        <div id="modal-close" (click)="onClose($event)">Close</div>
         <ng-container #modalplaceholder></ng-container>
     </div>
 </div>

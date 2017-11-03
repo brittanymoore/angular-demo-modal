@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild, ViewContainerRef, Injector, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { ModalService } from './../modal.service';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
-    selector: 'modal-placeholder',
+    selector: 'app-modal-placeholder',
     templateUrl: './modal-placeholder.component.html',
     styleUrls: ['./modal-placeholder.component.less'],
     animations: [
@@ -13,6 +13,12 @@ import { Subscription } from 'rxjs/Subscription';
             state('inactive', style({ zIndex: -1 })),
             transition('active => inactive', animate('0ms 400ms')),
             transition('inactive => active', animate('0s'))
+        ]),
+        trigger('slideState', [
+            state('active', style({ transform: 'translateY(0)'})),
+            state('inactive', style({ transform: 'translateY(-25%)' })),
+            transition('active => inactive', animate('100ms')),
+            transition('inactive => active', animate('100ms'))
         ])
     ],
     encapsulation: ViewEncapsulation.None // apply styles globally
@@ -25,11 +31,10 @@ export class ModalPlaceholderComponent implements OnInit, OnDestroy {
     public allowBackdropClose: boolean = true;
     public modalState: string = 'inactive';
 
-    @ViewChild('modalplaceholder', { read: ViewContainerRef }) viewContainerRef: ViewContainerRef;
+    @ViewChild('modalplaceholder', { read: ViewContainerRef }) public viewContainerRef: ViewContainerRef;
 
     constructor(
-        private modalService: ModalService,
-        private injector: Injector
+        private modalService: ModalService
     ) {}
 
     private closeModal(): void {
@@ -42,7 +47,7 @@ export class ModalPlaceholderComponent implements OnInit, OnDestroy {
         }
     }
 
-    public onClose(event: Event): void {
+    public onClose(_event: Event): void {
         this.closeModal();
     }
 

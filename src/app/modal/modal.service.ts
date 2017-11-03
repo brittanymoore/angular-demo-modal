@@ -1,7 +1,5 @@
 import {
-    Injectable, ViewContainerRef, Injector, Compiler,
-    ReflectiveInjector, ComponentRef, ComponentFactory,
-    ComponentFactoryResolver, Type
+    Injectable, ViewContainerRef, Injector, ReflectiveInjector, ComponentFactoryResolver, Type, ComponentRef
 } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
@@ -12,7 +10,6 @@ export class ModalService {
 
     private vcRef: ViewContainerRef;
     private injector: Injector;
-    private modalRef: ComponentRef<any>[] = [];
     private activeInstances: number = 0;
 
     public activeInstances$: Subject<number> = new Subject();
@@ -38,8 +35,7 @@ export class ModalService {
         this.vcRef.clear();
     }
 
-    public create<T>(component: Type<{}>, parameters: Object, allowBackdropClose?: boolean):
-    Observable<ComponentRef<T>> {
+    public create<T>(component: Type<{}>, parameters: Object, allowBackdropClose?: boolean): Observable<ComponentRef<T>> {
 
         if (allowBackdropClose === undefined || allowBackdropClose === null) {
             allowBackdropClose = true;
@@ -73,9 +69,6 @@ export class ModalService {
             this.activeInstances$.next(this.activeInstances);
         });
 
-        // broadcast and complete componentRef
-        componentRef$.next(componentRef);
-        componentRef$.complete();
         return <Observable<ComponentRef<T>>>componentRef$.asObservable();
 
     }

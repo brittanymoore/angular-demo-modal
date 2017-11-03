@@ -1,26 +1,25 @@
-import { Component } from '@angular/core';
-import { ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 
 import { ModalService } from './modal/modal.service';
-import { ModalContentComponent1 } from './modal/content-1/modal-content.component';
-import { ModalContentComponent2 } from './modal/content-2/modal-content.component';
+import { ModalContent1Component } from './modal/content-1/modal-content.component';
+import { ModalContent2Component } from './modal/content-2/modal-content.component';
 
 @Component({
-    selector: 'app',
+    selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: [ './app.component.less' ],
-    encapsulation: ViewEncapsulation.None // apply styles globally
+    encapsulation: ViewEncapsulation.None
 })
 export class AppComponent {
-    
+
     constructor(private modalService: ModalService) { }
 
     public openModal1() {
-        this.modalService.create<ModalContentComponent1>(ModalContentComponent1, {});
+        this.modalService.create<ModalContent1Component>(ModalContent1Component, {});
     }
 
     public openModal2() {
-        this.modalService.create<ModalContentComponent2>(ModalContentComponent2, {});
+        this.modalService.create<ModalContent2Component>(ModalContent2Component, {});
     }
 
 }
